@@ -1,21 +1,52 @@
 import { Schema, model } from "mongoose";
 
-export type UserRole = "admin" | "teacher" | "student";
+export const USER_ROLES = ["admin", "teacher", "student"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
 
-const userSchema = new Schema(
+export interface IUser {
+  first_name: string;
+  last_name: string;
+  phone_number: number;
+  email: string;
+  password?: string;
+  role: UserRole;
+  tokenVersion?: number;
+  id?: string;
+  _id?: any;               
+  __v?: number;
+}
+
+const userSchema = new Schema<IUser>(
   {
-    name: { type: String, required: true },
+    first_name: { type: String, required: true },
+    last_name: { type: String, required: true },
+    phone_number: { type: Number, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, select: false },
     role: {
       type: String,
-      enum: ["admin", "teacher", "student"],
+      enum: USER_ROLES,
       default: "student",
     },
+    tokenVersion: { type: Number, default: 0, select: false },
   },
   {
     timestamps: true,
-  },
+    toJSON: {
+      virtuals: true,
+      transform(doc, ret) {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+        delete ret.password;
+        delete ret.tokenVersion;
+      },
+    },
+  }
 );
 
-export const UserModel = model("User", userSchema);
+userSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+export const UserModel = model<IUser>("User", userSchema);
