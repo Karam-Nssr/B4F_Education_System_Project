@@ -27,6 +27,26 @@ export class UserController {
       return res.status(500).json({ success: false, message: error.message });
     }
   }
+  static async getAllTeachers(req: Request, res: Response) {
+    try {
+      const { status } = req.query;
+      const filter: any = { role: 'teacher' };
+      if (status) filter.status = status;
+
+      const teachers = await UserService.getAllTeachers(filter);
+      
+      return res.status(200).json({ 
+        success: true, 
+        count: teachers.length, 
+        teachers: teachers 
+      });
+    } catch (error: any) {
+      return res.status(500).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+  }
 
   static async getUserProfile(req: Request, res: Response) {
     try {

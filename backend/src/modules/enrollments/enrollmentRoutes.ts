@@ -5,26 +5,26 @@ import { authorize } from "../../middlewares/roleMiddleware.js";
 
 const router = Router();
 router.post(
-  "/",
+  "/enrollments/",
   authenticate,
   authorize(["admin", "student"]),
   EnrollmentController.create,
 );
 
 router.get(
-  "/",
+  "/enrollments/",
   authenticate,
   authorize(["admin"]),
   EnrollmentController.getAll,
 );
 router.get(
-  "/my-courses",
+  "my-courses",
   authenticate,
   authorize(["student"]),
   EnrollmentController.getMyEnrollments,
 );
 router.get(
-  "/student/:studentId/courses",
+  "student/:studentId/courses",
   authenticate,
   authorize(["admin", "teacher"]),
   EnrollmentController.getMyEnrollments,
@@ -36,7 +36,7 @@ router.patch(
   EnrollmentController.updateStatus,
 );
 router.get(
-  "/course/:courseId/students",
+  "course/:courseId/students",
   authenticate,
   authorize(["admin", "teacher"]),
   EnrollmentController.getCourseStudents,

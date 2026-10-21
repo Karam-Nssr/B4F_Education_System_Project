@@ -1,7 +1,7 @@
 import { Schema, model, Types } from "mongoose";
 
 export interface ISession {
-  course_id: Types.ObjectId | string;
+  course: Types.ObjectId | string;
   content: string;
   session_date: Date;
   id?: string;
@@ -11,7 +11,7 @@ export interface ISession {
 
 const sessionSchema = new Schema<ISession>(
   {
-    course_id: {
+    course: {
       type: Schema.Types.ObjectId,
       ref: "Course",
       required: true,

@@ -20,7 +20,7 @@ export class AttendanceService {
       throw new Error("Session not found");
     }
 
-    const course = await CourseModel.findById(session.course_id);
+    const course = await CourseModel.findById(session.course);
     if (!course) {
       throw new Error("Course not found");
     }
@@ -52,14 +52,13 @@ export class AttendanceService {
     if (data.status === "unexcused_absence" && previousStatus !== "unexcused_absence") {
       const enrollment = await EnrollmentModel.findOne({ 
         student_id: data.student_id, 
-        course_id: session.course_id 
+        course_id: session.course
       });
 
       if (enrollment) {
         enrollment.absence_count = (enrollment.absence_count || 0) + 1;
         if (enrollment.absence_count >= 3) {
-          enrollment.status = "suspended"; // تعليق التسجيل تلقائياً عند تجاوز 3 غيابات بدون عذر
-        }
+          enrollment.status = "suspended"; }
         await enrollment.save();
       }
     }
