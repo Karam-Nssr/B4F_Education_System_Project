@@ -9,11 +9,13 @@ import {
 import {
   getCurrentUser,
   login as loginRequest,
+  register as registerRequest,
   logout as logoutRequest,
 } from "../src/features/authentication/services/auth_service";
 
 import type {
   LoginCredentials,
+  RegisterPayload,
   User,
 } from "../src/features/authentication/types";
 
@@ -24,6 +26,7 @@ type AuthContextType = {
   token: string | null;
   isLoading: boolean;
   loginUser: (credentials: LoginCredentials) => Promise<void>;
+  registerUser: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -39,15 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function restoreSession() {
       const savedToken = sessionStorage.getItem(TOKEN_KEY);
-
-      if (!savedToken) {
+      if (!savedToken || savedToken === "undefined") {
         if (active) setIsLoading(false);
         return;
       }
 
       try {
         const currentUser = await getCurrentUser(savedToken);
-
         if (active) {
           setToken(savedToken);
           setUser(currentUser);
@@ -60,25 +61,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     void restoreSession();
-
     return () => {
       active = false;
     };
   }, []);
 
-  async function loginUser(credentials: LoginCredentials): Promise<void> {
-    const response = await loginRequest(credentials);
-    const accessToken = response.data.accessToken;
-    const authenticatedUser = response.data.user;
+async function loginUser(credentials: LoginCredentials): Promise<void> {
+  const { token: accessToken, user: authenticatedUser } = await loginRequest(credentials);
+  sessionStorage.setItem(TOKEN_KEY, accessToken);
+  setToken(accessToken);
+  setUser(authenticatedUser);
+}
 
-    sessionStorage.setItem(TOKEN_KEY, accessToken);
-    setToken(accessToken);
-    setUser(authenticatedUser);
-  }
+async function registerUser(payload: RegisterPayload): Promise<void> {
+  const { token: accessToken, user: newUser } = await registerRequest(payload);
+  sessionStorage.setItem(TOKEN_KEY, accessToken);
+  setToken(accessToken);
+  setUser(newUser);
+}
 
   async function logout(): Promise<void> {
     const currentToken = token;
-
     sessionStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
@@ -86,14 +89,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (currentToken) {
       try {
         await logoutRequest(currentToken);
-      } catch {
-        // The local session is cleared even if the server request fails.
-      }
+      } catch {}
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, loginUser, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, isLoading, loginUser, registerUser, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -101,10 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 }
