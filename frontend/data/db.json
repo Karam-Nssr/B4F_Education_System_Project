@@ -2,5 +2,38 @@
   "users": [],
   "students": [],
   "teachers": [],
-  "courses": []
+  "courses": [
+    {
+      "id": "1",
+      "title": "Introduction to Programming",
+      "instructor": "Ahmed Khalil",
+      "instructorId": 102,
+      "duration": "40 Hours",
+      "image": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=80"
+    },
+    {
+      "id": "2",
+      "title": "Frontend Development",
+      "instructor": "Abdulrahman",
+      "instructorId": 101,
+      "duration": "50 Hours",
+      "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80"
+    },
+    {
+      "id": "3",
+      "title": "Data Structures and Algorithms",
+      "instructor": "Salem Alabdullah",
+      "instructorId": 103,
+      "duration": "35 Hours",
+      "image": "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80"
+    },
+    {
+      "title": "Design",
+      "instructor": "tasnim9",
+      "duration": "20 Hours",
+      "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+      "id": "Rx0Akn8SYJ4"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
