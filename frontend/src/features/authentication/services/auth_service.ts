@@ -1,5 +1,5 @@
-import { login_url, me_url, logout_url } from "../../../core/end_points";
-import { getData, postData } from "../../../core/http_methods";
+import { login_url, me_url, logout_url } from "../../../../core/end_points";
+import { getData, postData } from "../../../../core/http_methods";
 import type { LoginCredentials, LoginResponse, User } from "../types";
 
 export async function login(

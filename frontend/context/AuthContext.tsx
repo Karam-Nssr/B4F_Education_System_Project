@@ -10,9 +10,12 @@ import {
   getCurrentUser,
   login as loginRequest,
   logout as logoutRequest,
-} from "../features/authentication/services/auth_service.ts";
+} from "../src/features/authentication/services/auth_service";
 
-import type { LoginCredentials, User } from "../features/authentication/types";
+import type {
+  LoginCredentials,
+  User,
+} from "../src/features/authentication/types";
 
 const TOKEN_KEY = "accessToken";
 
