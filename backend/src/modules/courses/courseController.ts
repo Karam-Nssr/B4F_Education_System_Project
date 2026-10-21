@@ -33,7 +33,7 @@ export class CourseController {
       const course = await CourseService.getCourseById((req as any).params.id);
       return res.status(200).json({
         success: true,
-        data: course,
+        course: course,
       });
     } catch (error: any) {
       return res.status(404).json({
