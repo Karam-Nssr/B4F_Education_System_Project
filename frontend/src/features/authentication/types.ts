@@ -1,21 +1,29 @@
-export type UserRole = "ADMIN" | "TEACHER" | "STUDENT";
-
-export interface User {
+export type User = {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  role: UserRole;
-}
+  phone_number?: string;
+  role: "student" | "teacher" | "admin";
+  status: "active" | "suspended";
+};
 
-export interface LoginCredentials {
+export type LoginCredentials = {
   email: string;
   password: string;
-}
+};
 
-export interface LoginResponse {
-  success: boolean;
-  data: {
-    accessToken: string;
-    user: User;
-  };
-}
+export type RegisterPayload = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  phone_number: string;
+  role: "student" | "teacher";
+};
+
+export type AuthResponse = {
+  message: string;
+  token: string;
+  user: User;
+};
