@@ -3,6 +3,9 @@ import { Schema, model } from "mongoose";
 export const USER_ROLES = ["admin", "teacher", "student"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const USER_STATUSES = ["active", "inactive", "suspended"] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];
+
 export interface IUser {
   first_name: string;
   last_name: string;
@@ -10,9 +13,10 @@ export interface IUser {
   email: string;
   password?: string;
   role: UserRole;
+  status: UserStatus;
   tokenVersion?: number;
   id?: string;
-  _id?: any;               
+  _id?: any;
   __v?: number;
 }
 
@@ -28,6 +32,11 @@ const userSchema = new Schema<IUser>(
       enum: USER_ROLES,
       default: "student",
     },
+    status: {
+      type: String,
+      enum: USER_STATUSES,
+      default: "active",
+    },
     tokenVersion: { type: Number, default: 0, select: false },
   },
   {
@@ -42,7 +51,7 @@ const userSchema = new Schema<IUser>(
         delete ret.tokenVersion;
       },
     },
-  }
+  },
 );
 
 userSchema.virtual("id").get(function () {
