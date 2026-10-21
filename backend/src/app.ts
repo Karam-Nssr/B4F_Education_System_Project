@@ -14,7 +14,7 @@ app.use(cors({
 
 app.use("/", authRoutes);
 app.use("/courses", courseRoutes);
-app.use("/users", userRoutes);
+app.use("/", userRoutes);
 app.use("/", sessionRoutes);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

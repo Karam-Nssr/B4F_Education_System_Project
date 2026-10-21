@@ -31,6 +31,12 @@ export class UserService {
   static async getAllUsers(filter: object = {}): Promise<IUser[]> {
     return await UserModel.find({...filter,role: { $ne: "admin"}}).sort({ createdAt: -1 });
   }
+  static async getAllTeachers(filter: object = {}): Promise<IUser[]> {
+    return await UserModel.find({ 
+      ...filter, 
+      role: "teacher" 
+    }).sort({ createdAt: -1 });
+  }
 
   static async createUser(data: Partial<IUser>): Promise<IUser> {
     if (!data.email) {
