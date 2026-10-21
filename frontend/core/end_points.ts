@@ -1,10 +1,12 @@
-export const base_url = "http://localhost:3001/";
-export const auth_url = `${base_url}/auth`;
-export const login_url = `${auth_url}/login`;
-export const me_url = `${auth_url}/me`;
-export const logout_url = `${auth_url}/logout`;
+export const base_url = "http://localhost:5000";
 
-export const users_url = `${base_url}/users`;
-export const students_url = `${base_url}/students`;
-export const teachers_url = `${base_url}/teachers`;
+export const login_url  = `${base_url}/login`;
+export const register_url = `${base_url}/register`;  
+
+
+export const users_url   = `${base_url}/users`;
 export const courses_url = `${base_url}/courses`;
+export const me_url     = `${users_url}/profile`;       
+export const logout_url = `${base_url}/logout`;
+export const users_profile_url = `${users_url}/profile`;
+export const users_admin_url   = `${users_url}/admin`;
