@@ -19,7 +19,7 @@ app.use("/", authRoutes);
 app.use("/courses", courseRoutes);
 app.use("/", userRoutes);
 app.use("/", sessionRoutes);
-app.use("/enrollments", enrollmentRoutes);
+app.use("/", enrollmentRoutes);
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
