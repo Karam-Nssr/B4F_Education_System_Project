@@ -1,53 +1,58 @@
+import { courses_url, enrollments_url } from "../../../../core/end_points";
+import {
+  getData,
+  postData,
+  deleteData,
+  patchData,
+} from "../../../../core/http_methods";
+
+// جلب التوكن من التخزين المحلي (مهم جداً لعملية الإضافة والتعديل)
+const getToken = () => localStorage.getItem("token") || undefined;
+
 export const fetchCourses = async (): Promise<any[]> => {
-  const response = await fetch("http://localhost:3000/courses");
-  if (!response.ok) {
-    throw new Error("Failed to fetch courses");
+  try {
+    const data: any = await getData(courses_url);
+
+    // طباعة البيانات في الكونسول لمعرفة شكلها الحقيقي
+    console.log("Data received from backend:", data);
+
+    // حماية تمنع الشاشة البيضاء
+    if (data && Array.isArray(data.courses)) {
+      return data.courses;
+    } else if (Array.isArray(data)) {
+      return data;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("Error in fetchCourses:", error);
+    return []; // إرجاع مصفوفة فارغة في حال حدوث خطأ لمنع انهيار الصفحة
   }
-  return response.json();
 };
 
 export const deleteCourse = async (id: number): Promise<void> => {
-  const response = await fetch(`http://localhost:3000/courses/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error("Failed to delete course");
-  }
+  await deleteData(`${courses_url}/${id}`, getToken());
 };
 
 export const enrollInCourse = async (
   courseId: number,
   studentId: number,
 ): Promise<void> => {
-  const response = await fetch("http://localhost:3000/enrollments", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ courseId, studentId }),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to enroll in course");
-  }
+  await postData(enrollments_url, { courseId, studentId }, getToken());
 };
+
 export const getCourseById = async (id: number): Promise<any> => {
-  const response = await fetch(`http://localhost:3000/courses/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch course");
-  return response.json();
+  const data: any = await getData(`${courses_url}/${id}`);
+  return data.course || data;
 };
 
 export const createCourse = async (courseData: any): Promise<void> => {
-  const response = await fetch("http://localhost:3000/courses", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(courseData),
-  });
-  if (!response.ok) throw new Error("Failed to create course");
+  await postData(courses_url, courseData, getToken());
 };
 
-export const updateCourse = async (id: number, courseData: any): Promise<void> => {
-  const response = await fetch(`http://localhost:3000/courses/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(courseData),
-  });
-  if (!response.ok) throw new Error("Failed to update course");
+export const updateCourse = async (
+  id: number,
+  courseData: any,
+): Promise<void> => {
+  await patchData(`${courses_url}/${id}`, courseData, getToken());
 };

@@ -44,9 +44,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
             <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
               Course
             </span>
-            <span className="text-slate-400 text-sm font-medium">
+            {/* <span className="text-slate-400 text-sm font-medium">
               {course.id}#
-            </span>
+            </span> */}
           </div>
           <h2 className="text-xl font-bold text-slate-800 mb-2 leading-snug group-hover:text-indigo-600 transition-colors">
             {course.title}
