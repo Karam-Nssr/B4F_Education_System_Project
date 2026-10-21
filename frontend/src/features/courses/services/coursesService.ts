@@ -10,7 +10,7 @@ const getToken = () => localStorage.getItem("token") || undefined;
 
 export const fetchCourses = async (): Promise<any[]> => {
   try {
-    const data: any = await getData(courses_url);
+    const data: any = await getData(courses_url, getToken());
     console.log("Data received from backend:", data);
     if (data && Array.isArray(data.courses)) {
       return data.courses;
@@ -37,7 +37,7 @@ export const enrollInCourse = async (
 };
 
 export const getCourseById = async (id: string): Promise<any> => {
-  const data: any = await getData(`${courses_url}/${id}`);
+  const data: any = await getData(`${courses_url}/${id}`, getToken());
   return data.course || data;
 };
 
