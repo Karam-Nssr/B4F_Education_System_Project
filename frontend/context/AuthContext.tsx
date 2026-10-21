@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
 
     async function restoreSession() {
-      const savedToken = sessionStorage.getItem(TOKEN_KEY);
+      const savedToken = localStorage.getItem(TOKEN_KEY);
       if (!savedToken || savedToken === "undefined") {
         if (active) setIsLoading(false);
         return;
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(currentUser);
         }
       } catch {
-        sessionStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(TOKEN_KEY);
       } finally {
         if (active) setIsLoading(false);
       }
@@ -66,23 +66,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-async function loginUser(credentials: LoginCredentials): Promise<void> {
-  const { token: accessToken, user: authenticatedUser } = await loginRequest(credentials);
-  sessionStorage.setItem(TOKEN_KEY, accessToken);
-  setToken(accessToken);
-  setUser(authenticatedUser);
-}
+  async function loginUser(credentials: LoginCredentials): Promise<void> {
+    const { token: accessToken, user: authenticatedUser } =
+      await loginRequest(credentials);
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    setToken(accessToken);
+    setUser(authenticatedUser);
+  }
 
-async function registerUser(payload: RegisterPayload): Promise<void> {
-  const { token: accessToken, user: newUser } = await registerRequest(payload);
-  sessionStorage.setItem(TOKEN_KEY, accessToken);
-  setToken(accessToken);
-  setUser(newUser);
-}
+  async function registerUser(payload: RegisterPayload): Promise<void> {
+    const { token: accessToken, user: newUser } =
+      await registerRequest(payload);
+    localStorage.setItem(TOKEN_KEY, accessToken);
+    setToken(accessToken);
+    setUser(newUser);
+  }
 
   async function logout(): Promise<void> {
     const currentToken = token;
-    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
 
