@@ -30,18 +30,18 @@ export const fetchCourses = async (): Promise<any[]> => {
   }
 };
 
-export const deleteCourse = async (id: number): Promise<void> => {
+export const deleteCourse = async (id: string): Promise<void> => {
   await deleteData(`${courses_url}/${id}`, getToken());
 };
 
 export const enrollInCourse = async (
-  courseId: number,
-  studentId: number,
+  courseId: string,
+  studentId: string,
 ): Promise<void> => {
   await postData(enrollments_url, { courseId, studentId }, getToken());
 };
 
-export const getCourseById = async (id: number): Promise<any> => {
+export const getCourseById = async (id: string): Promise<any> => {
   const data: any = await getData(`${courses_url}/${id}`);
   return data.course || data;
 };
@@ -51,7 +51,7 @@ export const createCourse = async (courseData: any): Promise<void> => {
 };
 
 export const updateCourse = async (
-  id: number,
+  id: string,
   courseData: any,
 ): Promise<void> => {
   await patchData(`${courses_url}/${id}`, courseData, getToken());

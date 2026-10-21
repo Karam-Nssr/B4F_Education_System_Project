@@ -7,26 +7,50 @@ import {
   updateCourse,
 } from "../services/coursesService";
 import { CourseCard } from "../components/CourseCard";
-import { CourseModal } from "../components/CourseModal"; // تأكد من إنشاء هذا الملف
+import { CourseModal } from "../components/CourseModal";
+import { SessionModal } from "../components/SessionModal";
+// استيراد أدوات جلب بيانات المستخدم
+import { me_url } from "../../../../core/end_points";
+import { getData } from "../../../../core/http_methods";
 
 const CoursesPage: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // حالات النافذة المنبثقة
+  // حالة المستخدم الحالي (تبدأ فارغة حتى يتم جلب البيانات)
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
 
-  // محاكاة تسجيل الدخول كأدمن بصلاحيات كاملة
-  const currentUser = {
-    id: 101,
-    name: "Abdulrahman",
-    role: "admin",
-  };
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState<boolean>(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadData();
+    // دالة لجلب بيانات المستخدم والكورسات معاً عند فتح الصفحة
+    const initializePage = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+          // جلب بيانات المستخدم باستخدام التوكن
+          const userData: any = await getData(me_url, token);
+          // افترضنا أن الباك إند يعيد البيانات داخل user، عدلها إذا كان يعيدها مباشرة
+          setCurrentUser(userData.user || userData.data || userData);
+        } else {
+          // إذا لم يكن هناك توكن، يمكنك توجيهه لصفحة تسجيل الدخول
+          console.warn("No token found. User is not logged in.");
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile", err);
+      }
+
+      // جلب الكورسات بعد التحقق من المستخدم
+      await loadData();
+    };
+
+    initializePage();
   }, []);
 
   const loadData = async () => {
@@ -41,7 +65,7 @@ const CoursesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
       try {
         await deleteCourse(id);
@@ -54,9 +78,13 @@ const CoursesPage: React.FC = () => {
     }
   };
 
-  const handleEnroll = async (courseId: number) => {
+  const handleEnroll = async (courseId: string) => {
+    if (!currentUser) {
+      alert("Please login first to enroll.");
+      return;
+    }
     try {
-      await enrollInCourse(courseId, currentUser.id);
+      await enrollInCourse(courseId, currentUser.id || currentUser._id);
       alert("Successfully enrolled in the course!");
     } catch (err) {
       alert("Error enrolling in course");
@@ -64,7 +92,6 @@ const CoursesPage: React.FC = () => {
     }
   };
 
-  // --- دوال النافذة المنبثقة ---
   const openCreateModal = () => {
     setEditingCourse(null);
     setIsModalOpen(true);
@@ -85,26 +112,40 @@ const CoursesPage: React.FC = () => {
         alert("Course created successfully!");
       }
       setIsModalOpen(false);
-      loadData(); // تحديث القائمة بعد الإضافة/التعديل
+      loadData();
     } catch (err) {
       alert("Error saving course data");
       console.error(err);
     }
   };
-  // -----------------------------
+
+  const handleOpenSessions = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    setIsSessionModalOpen(true);
+  };
 
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-slate-600">
-        Loading courses...
+        Loading...
       </div>
     );
+
   if (error)
     return (
       <div className="flex justify-center items-center h-screen text-red-500">
         {error}
       </div>
     );
+
+  // إذا لم يتم تسجيل الدخول بعد (ولا نريد عرض الصفحة بدونه)
+  if (!currentUser) {
+    return (
+      <div className="flex justify-center items-center h-screen text-slate-600">
+        Please log in to view this page.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -114,7 +155,6 @@ const CoursesPage: React.FC = () => {
             Course Management
           </h1>
           <div className="flex items-center gap-4">
-            {/* زر إضافة كورس يظهر للأدمن فقط */}
             {currentUser.role === "admin" && (
               <button
                 onClick={openCreateModal}
@@ -126,7 +166,7 @@ const CoursesPage: React.FC = () => {
             <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
               <span className="text-sm text-slate-500">Logged in as: </span>
               <span className="font-bold text-indigo-600">
-                {currentUser.name} ({currentUser.role})
+                {currentUser.name || currentUser.username} ({currentUser.role})
               </span>
             </div>
           </div>
@@ -140,18 +180,24 @@ const CoursesPage: React.FC = () => {
               currentUser={currentUser}
               onDelete={handleDelete}
               onEnroll={handleEnroll}
-              onEdit={openEditModal} // تم إضافة دالة التعديل هنا
+              onEdit={openEditModal}
+              onOpenSessions={handleOpenSessions}
             />
           ))}
         </div>
       </div>
 
-      {/* استدعاء النافذة المنبثقة */}
       <CourseModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
         initialData={editingCourse}
+      />
+
+      <SessionModal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        courseId={selectedCourseId}
       />
     </div>
   );
