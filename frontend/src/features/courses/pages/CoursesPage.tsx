@@ -12,51 +12,27 @@ import { SessionModal } from "../components/SessionModal";
 // استيراد أدوات جلب بيانات المستخدم
 import { me_url } from "../../../../core/end_points";
 import { getData } from "../../../../core/http_methods";
-
+import { useAuth } from "../../../../context/AuthContext";
 const CoursesPage: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // حالة المستخدم الحالي (تبدأ فارغة حتى يتم جلب البيانات)
-  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  // const [currentUser, setCurrentUser] = useState<any | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
 
   const [isSessionModalOpen, setIsSessionModalOpen] = useState<boolean>(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // دالة لجلب بيانات المستخدم والكورسات معاً عند فتح الصفحة
-    const initializePage = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        if (token) {
-          // جلب بيانات المستخدم باستخدام التوكن
-          const userData: any = await getData(me_url, token);
-          // افترضنا أن الباك إند يعيد البيانات داخل user، عدلها إذا كان يعيدها مباشرة
-          setCurrentUser(userData.user || userData.data || userData);
-        } else {
-          // إذا لم يكن هناك توكن، يمكنك توجيهه لصفحة تسجيل الدخول
-          console.warn("No token found. User is not logged in.");
-        }
-      } catch (err) {
-        console.error("Failed to fetch user profile", err);
-      }
-
-      // جلب الكورسات بعد التحقق من المستخدم
-      await loadData();
-    };
-
-    initializePage();
-  }, []);
-
+  const { user: currentUser, isLoading: authLoading } = useAuth();
+  
   const loadData = async () => {
     try {
       const data = await fetchCourses();
-      setCourses(data);
+      const coursesList = Array.isArray(data) ? data : (data as any).courses || [];
+      setCourses(coursesList);
     } catch (err) {
       setError("Failed to connect to the server.");
       console.error(err);
@@ -64,6 +40,31 @@ const CoursesPage: React.FC = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    // دالة لجلب بيانات المستخدم والكورسات معاً عند فتح الصفحة
+    const initializePage = async () => {
+      // try {
+      //   const token = localStorage.getItem("accessToken");
+
+      //   if (token) {
+      //     // جلب بيانات المستخدم باستخدام التوكن
+      //     // const userData: any = await getData(me_url, token);
+      //      // افترضنا أن الباك إند يعيد البيانات داخل user، عدلها إذا كان يعيدها مباشرة
+      //     // setCurrentUser(userData.user || userData.data || userData);
+      //   } else {
+      //     // إذا لم يكن هناك توكن، يمكنك توجيهه لصفحة تسجيل الدخول
+      //     console.warn("No token found. User is not logged in.");
+      //   }
+      // } catch (err) {
+      //   console.error("Failed to fetch user profile", err);
+      // }
+
+      // جلب الكورسات بعد التحقق من المستخدم
+      await loadData();
+    };
+
+    initializePage();
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this course?")) {
@@ -166,7 +167,7 @@ const CoursesPage: React.FC = () => {
             <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
               <span className="text-sm text-slate-500">Logged in as: </span>
               <span className="font-bold text-indigo-600">
-                {currentUser.name || currentUser.username} ({currentUser.role})
+                {currentUser.first_name || currentUser.username} ({currentUser.role})
               </span>
             </div>
           </div>

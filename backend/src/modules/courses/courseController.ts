@@ -19,7 +19,7 @@ export class CourseController {
       return res.status(200).json({
         success: true,
         count: courses.length,
-        data: courses
+        courses: courses
       });
     } catch (error: any) {
       return res.status(500).json({

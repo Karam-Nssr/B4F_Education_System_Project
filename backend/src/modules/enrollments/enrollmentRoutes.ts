@@ -20,6 +20,7 @@ router.get(
 router.get(
   "my-courses",
   authenticate,
+  
   authorize(["student"]),
   EnrollmentController.getMyEnrollments,
 );
