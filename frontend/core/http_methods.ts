@@ -1,71 +1,74 @@
-export const getData = async (url: string) => {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
   }
-};
+}
 
-export const postData = async (url: string, data: unknown) => {
-  try {
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!resp.ok) {
-      throw new Error(`HTTP error! status: ${resp.status}`);
-    }
-    const result = await resp.json();
-    console.log("Post successful:", result);
-    return result;
-  } catch (error) {
-    console.error("Error posting data:", error);
-  }
-};
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const response = await fetch(url, options);
 
-export const patchData = async (url: string, data: unknown) => {
-  try {
-    const resp = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!resp.ok) {
-      throw new Error(`HTTP error! status: ${resp.status}`);
-    }
-    const result = await resp.json();
-    console.log("Patch successful:", result);
-    return result;
-  } catch (error) {
-    console.error("Error patching data:", error);
-  }
-};
+  const result =
+    response.status === 204 ? null : await response.json().catch(() => null);
 
-export const deleteData = async (url: string) => {
-  try {
-    const resp = await fetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!resp.ok) {
-      throw new Error(`HTTP error! status: ${resp.status}`);
-    }
-    const result = resp.status !== 204 ? await resp.json() : { success: true };
-    console.log("Delete successful:", result);
-    return result;
-  } catch (error) {
-    console.error("Error deleting data:", error);
+  if (!response.ok) {
+    const message =
+      result &&
+      typeof result === "object" &&
+      "message" in result &&
+      typeof result.message === "string"
+        ? result.message
+        : `HTTP error! status: ${response.status}`;
+
+    throw new ApiError(message, response.status);
   }
-};
+
+  return result as T;
+}
+
+function buildHeaders(token?: string, hasBody = false): HeadersInit {
+  return {
+    ...(hasBody ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+export const getData = <T = unknown>(url: string, token?: string): Promise<T> =>
+  request<T>(url, {
+    method: "GET",
+    headers: buildHeaders(token),
+  });
+
+export const postData = <T = unknown>(
+  url: string,
+  data: unknown,
+  token?: string,
+): Promise<T> =>
+  request<T>(url, {
+    method: "POST",
+    headers: buildHeaders(token, true),
+    body: JSON.stringify(data),
+  });
+
+export const patchData = <T = unknown>(
+  url: string,
+  data: unknown,
+  token?: string,
+): Promise<T> =>
+  request<T>(url, {
+    method: "PATCH",
+    headers: buildHeaders(token, true),
+    body: JSON.stringify(data),
+  });
+
+export const deleteData = <T = unknown>(
+  url: string,
+  token?: string,
+): Promise<T> =>
+  request<T>(url, {
+    method: "DELETE",
+    headers: buildHeaders(token),
+  });
