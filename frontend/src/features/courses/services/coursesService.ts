@@ -6,17 +6,12 @@ import {
   patchData,
 } from "../../../../core/http_methods";
 
-// جلب التوكن من التخزين المحلي (مهم جداً لعملية الإضافة والتعديل)
 const getToken = () => localStorage.getItem("token") || undefined;
 
 export const fetchCourses = async (): Promise<any[]> => {
   try {
     const data: any = await getData(courses_url);
-
-    // طباعة البيانات في الكونسول لمعرفة شكلها الحقيقي
     console.log("Data received from backend:", data);
-
-    // حماية تمنع الشاشة البيضاء
     if (data && Array.isArray(data.courses)) {
       return data.courses;
     } else if (Array.isArray(data)) {
@@ -26,7 +21,7 @@ export const fetchCourses = async (): Promise<any[]> => {
     }
   } catch (error) {
     console.error("Error in fetchCourses:", error);
-    return []; // إرجاع مصفوفة فارغة في حال حدوث خطأ لمنع انهيار الصفحة
+    return [];
   }
 };
 

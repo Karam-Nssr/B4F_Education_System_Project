@@ -27,3 +27,10 @@ export type AuthResponse = {
   token: string;
   user: User;
 };
+
+export type Enrollment = {
+  _id: string;
+  status: "pending" | "approved" | "rejected" | "suspended";
+  student_id: { _id: string; first_name: string; last_name: string };
+  course_id: { _id: string; title: string };
+};
