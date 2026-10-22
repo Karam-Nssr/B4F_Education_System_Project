@@ -4,16 +4,11 @@ import { EnrollmentService } from "./enrollmentService.js";
 export class EnrollmentController {
   static async create(req: Request, res: Response) {
     try {
-<<<<<<< HEAD
-      const studentId = (req as any).user.userId;
-      const { course_id } = req.body;
-=======
       const studentId = (req as any).user.id;
       const { course_id, student_id } = req.body;
       
       console.log(student_id);
       console.log(course_id);
->>>>>>> 75453347f77c180cdb699062809450ebbfa1ff3e
       const enrollment = await EnrollmentService.requestEnrollment(
         student_id,
         course_id,
