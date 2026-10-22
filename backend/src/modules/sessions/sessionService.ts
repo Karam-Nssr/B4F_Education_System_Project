@@ -6,6 +6,6 @@ export class SessionService {
   }
 
   static async getCourseSessions(courseId: string): Promise<ISession[]> {
-    return await SessionModel.find({ course_id: courseId }).sort({ session_date: 1 });
+    return await SessionModel.find({ course: courseId }).sort({ session_date: 1 });
   }
 }
