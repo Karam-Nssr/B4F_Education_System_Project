@@ -13,10 +13,15 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function getCurrentUser(token: string): Promise<User> {
-  const res = await getData<{ user: User } | User>(me_url, token);
-  
-  if ("user" in res) return res.user;
-  return res as User;
+  try {
+    const res = await getData<any>(me_url, token);
+    if (res.user) return res.user;
+    if (res.data) return res.data;
+    return res;
+  } catch (error) {
+    console.error("Failed to get current user:", error);
+    throw error;
+  }
 }
 
 export async function logout(token: string): Promise<void> {

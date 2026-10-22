@@ -4,6 +4,7 @@ export class SessionController {
   static async addSession(req: Request, res: Response) {
     try {
       const { courseId } = req.params;
+      console.log(req.body);
       const session = await SessionService.createSession({
         ...req.body,
         course: courseId,
@@ -18,7 +19,7 @@ export class SessionController {
     try {
       const { courseId } = (req as any).params;
       const sessions = await SessionService.getCourseSessions(courseId);
-      return res.status(200).json({ success: true, data: sessions });
+      return res.status(200).json({ success: true, sessions: sessions });
     } catch (error: any) {
       return res.status(500).json({ success: false, message: error.message });
     }

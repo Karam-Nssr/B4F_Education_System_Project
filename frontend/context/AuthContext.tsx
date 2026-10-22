@@ -37,34 +37,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    let active = true;
+useEffect(() => {
+  let active = true;
 
-    async function restoreSession() {
-      const savedToken = localStorage.getItem(TOKEN_KEY);
-      if (!savedToken || savedToken === "undefined") {
-        if (active) setIsLoading(false);
-        return;
-      }
+  async function restoreSession() {
+    const savedToken = localStorage.getItem(TOKEN_KEY);
 
-      try {
-        const currentUser = await getCurrentUser(savedToken);
-        if (active) {
-          setToken(savedToken);
-          setUser(currentUser);
-        }
-      } catch {
-        localStorage.removeItem(TOKEN_KEY);
-      } finally {
-        if (active) setIsLoading(false);
-      }
+    if (!savedToken || savedToken === "undefined") {
+      if (active) setIsLoading(false); 
+      return;
     }
 
-    void restoreSession();
-    return () => {
-      active = false;
-    };
-  }, []);
+    try {
+      const currentUser = await getCurrentUser(savedToken);
+      
+      if (active) {
+        setToken(savedToken);
+        setUser(currentUser);
+      }
+    } catch (err) {
+      console.error("Session restore failed", err);
+      localStorage.removeItem(TOKEN_KEY);
+    } finally {
+      if (active) setIsLoading(false);
+    }
+  }
+
+  void restoreSession();
+  
+  return () => {
+    active = false;
+  };
+}, []); 
 
   async function loginUser(credentials: LoginCredentials): Promise<void> {
     const { token: accessToken, user: authenticatedUser } =
