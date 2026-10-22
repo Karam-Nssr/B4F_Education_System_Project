@@ -38,6 +38,7 @@ const enrollmentSchema = new Schema<IEnrollment>(
     accepted_by: {
       type: Schema.Types.ObjectId,
       ref: "User",
+       required: false,
     },
     status: {
       type: String,

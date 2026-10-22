@@ -6,7 +6,7 @@ export class EnrollmentService {
   ): Promise<IEnrollment> {
     const existing = await EnrollmentModel.findOne({
       student_id: studentId,
-      course_id: courseId,
+      course_id: courseId
     });
     if (existing)
       throw new Error(
@@ -16,9 +16,9 @@ export class EnrollmentService {
     const enrollment = await EnrollmentModel.create({
       student_id: studentId,
       course_id: courseId,
+      
       status: "pending",
       accepted_at: new Date(),
-      accepted_by: "",
     });
     return enrollment;
   }
