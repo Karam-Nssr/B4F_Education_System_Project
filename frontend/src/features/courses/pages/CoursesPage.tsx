@@ -9,29 +9,27 @@ import {
 import { CourseCard } from "../components/CourseCard";
 import { CourseModal } from "../components/CourseModal";
 import { SessionModal } from "../components/SessionModal";
-// استيراد أدوات جلب بيانات المستخدم
-import { me_url } from "../../../../core/end_points";
-import { getData } from "../../../../core/http_methods";
 import { useAuth } from "../../../../context/AuthContext";
+
 const CoursesPage: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // حالة المستخدم الحالي (تبدأ فارغة حتى يتم جلب البيانات)
-  // const [currentUser, setCurrentUser] = useState<any | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingCourse, setEditingCourse] = useState<any | null>(null);
 
   const [isSessionModalOpen, setIsSessionModalOpen] = useState<boolean>(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const { user: currentUser, isLoading: authLoading } = useAuth();
-  
+
+  const { user: currentUser } = useAuth();
+
   const loadData = async () => {
     try {
       const data = await fetchCourses();
-      const coursesList = Array.isArray(data) ? data : (data as any).courses || [];
+      const coursesList = Array.isArray(data)
+        ? data
+        : (data as any).courses || [];
       setCourses(coursesList);
     } catch (err) {
       setError("Failed to connect to the server.");
@@ -40,30 +38,9 @@ const CoursesPage: React.FC = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    // دالة لجلب بيانات المستخدم والكورسات معاً عند فتح الصفحة
-    const initializePage = async () => {
-      // try {
-      //   const token = localStorage.getItem("accessToken");
-
-      //   if (token) {
-      //     // جلب بيانات المستخدم باستخدام التوكن
-      //     // const userData: any = await getData(me_url, token);
-      //      // افترضنا أن الباك إند يعيد البيانات داخل user، عدلها إذا كان يعيدها مباشرة
-      //     // setCurrentUser(userData.user || userData.data || userData);
-      //   } else {
-      //     // إذا لم يكن هناك توكن، يمكنك توجيهه لصفحة تسجيل الدخول
-      //     console.warn("No token found. User is not logged in.");
-      //   }
-      // } catch (err) {
-      //   console.error("Failed to fetch user profile", err);
-      // }
-
-      // جلب الكورسات بعد التحقق من المستخدم
-      await loadData();
-    };
-
-    initializePage();
+    loadData();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -71,7 +48,6 @@ const CoursesPage: React.FC = () => {
       try {
         await deleteCourse(id);
         setCourses(courses.filter((course) => course.id !== id));
-        alert("Course deleted successfully!");
       } catch (err) {
         alert("Error deleting course");
         console.error(err);
@@ -85,8 +61,11 @@ const CoursesPage: React.FC = () => {
       return;
     }
     try {
-      await enrollInCourse(courseId, currentUser.id || currentUser._id);
-      alert("Successfully enrolled in the course!");
+      await enrollInCourse(
+        courseId,
+        currentUser.id || (currentUser as any)._id,
+      );
+      alert("Successfully requested enrollment!");
     } catch (err) {
       alert("Error enrolling in course");
       console.error(err);
@@ -125,58 +104,67 @@ const CoursesPage: React.FC = () => {
     setIsSessionModalOpen(true);
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-slate-600">
-        Loading...
+      <div className="flex justify-center items-center h-64 text-blue-600 font-medium">
+        <svg className="animate-spin h-6 w-6 mr-3" viewBox="0 0 24 24">
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+            fill="none"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+        Loading Courses...
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
+      <div className="text-center text-red-500 py-10 bg-red-50 rounded-lg">
         {error}
-      </div>
-    );
-
-  // إذا لم يتم تسجيل الدخول بعد (ولا نريد عرض الصفحة بدونه)
-  if (!currentUser) {
-    return (
-      <div className="flex justify-center items-center h-screen text-slate-600">
-        Please log in to view this page.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Course Management
-          </h1>
-          <div className="flex items-center gap-4">
-            {currentUser.role === "admin" && (
-              <button
-                onClick={openCreateModal}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                + Add Course
-              </button>
-            )}
-            <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
-              <span className="text-sm text-slate-500">Logged in as: </span>
-              <span className="font-bold text-indigo-600">
-                {currentUser.first_name || currentUser.username} ({currentUser.role})
-              </span>
-            </div>
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              Course Catalog
+            </h1>
+            <p className="text-slate-500 mt-1">
+              Browse and manage available learning materials.
+            </p>
           </div>
+
+          {currentUser?.role === "admin" && (
+            <button
+              onClick={openCreateModal}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-colors"
+            >
+              + Add New Course
+            </button>
+          )}
         </div>
 
+        {/* Courses Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course: any) => (
             <CourseCard
-              key={course.id}
+              key={course.id || course._id}
               course={course}
               currentUser={currentUser}
               onDelete={handleDelete}
