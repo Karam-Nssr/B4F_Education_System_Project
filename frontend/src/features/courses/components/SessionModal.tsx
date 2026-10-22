@@ -38,7 +38,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     if (!courseId) return;
 
     try {
-      await createSession(courseId, { title, date });
+      await createSession(courseId, { content: title, session_date: date });
       // Reset fields and refresh list after adding
       setTitle("");
       setDate("");

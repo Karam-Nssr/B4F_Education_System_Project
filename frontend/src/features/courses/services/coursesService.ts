@@ -37,7 +37,14 @@ export const enrollInCourse = async (
   courseId: string,
   studentId: string,
 ): Promise<void> => {
-  await postData(enrollments_url, { courseId, studentId }, getToken());
+  console.log(courseId);
+  console.log(studentId);
+
+  await postData(
+    enrollments_url,
+    { course_id: courseId, student_id: studentId },
+    getToken(),
+  );
 };
 
 export const getCourseById = async (id: string): Promise<any> => {

@@ -8,7 +8,7 @@ interface CourseModalProps {
   initialData?: any;
 }
 
-// 1. التعديل هنا: مطابقة الأسماء تماماً مع الباك اند (first_name و last_name)
+// التعديل هنا: مطابقة الأسماء تماماً مع الباك اند (first_name و last_name)
 interface Instructor {
   _id?: string;
   id?: string;
@@ -32,9 +32,18 @@ export const CourseModal: React.FC<CourseModalProps> = ({
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // التعديل الجديد: معالجة بيانات المعلم في وضع التعديل لاستخراج الـ ID فقط
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      const teacherId =
+        typeof initialData.teacher === "object" && initialData.teacher !== null
+          ? initialData.teacher._id || initialData.teacher.id
+          : initialData.teacher;
+
+      setFormData({
+        ...initialData,
+        teacher: teacherId || "", // نضع المعرف (ID) فقط
+      });
     } else {
       setFormData({ title: "", teacher: "", duration_hours: "", image: "" });
     }
