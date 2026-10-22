@@ -1,7 +1,7 @@
 import { course_sessions_url } from "../../../../core/end_points";
 import { getData, postData } from "../../../../core/http_methods";
 
-const getToken = () => localStorage.getItem("token") || undefined;
+const getToken = () => localStorage.getItem("accessToken") || undefined;
 
 // جلب الجلسات الخاصة بكورس معين
 export const fetchSessions = async (courseId: string): Promise<any[]> => {
