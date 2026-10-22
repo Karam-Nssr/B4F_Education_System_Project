@@ -4,13 +4,10 @@ import { EnrollmentService } from "./enrollmentService.js";
 export class EnrollmentController {
   static async create(req: Request, res: Response) {
     try {
-      const studentId = (req as any).user.id;
-      const { course_id, student_id } = req.body;
-      
-      console.log(student_id);
-      console.log(course_id);
+      const studentId = (req as any).user.userId;
+      const { course_id } = req.body;
       const enrollment = await EnrollmentService.requestEnrollment(
-        student_id,
+        studentId,
         course_id,
       );
       return res.status(201).json({ success: true, data: enrollment });
