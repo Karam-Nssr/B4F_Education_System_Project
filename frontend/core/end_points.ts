@@ -16,3 +16,4 @@ export const users_deactivate_url = (id: string) =>
   `${users_url}/${id}/deactivate`;
 export const course_sessions_url = (courseId: string) =>
   `${courses_url}/${courseId}/sessions`;
+export const teachers_url = `${base_url}/getAllTeachers`;

@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { fetchTeachers } from "../services/coursesService";
 
 interface CourseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => Promise<void>;
-  initialData?: any; // إذا كان هناك بيانات فهذا يعني أننا في وضع التعديل
+  initialData?: any;
+}
+
+// 1. التعديل هنا: مطابقة الأسماء تماماً مع الباك اند (first_name و last_name)
+interface Instructor {
+  _id?: string;
+  id?: string;
+  first_name: string;
+  last_name: string;
 }
 
 export const CourseModal: React.FC<CourseModalProps> = ({
@@ -15,23 +24,45 @@ export const CourseModal: React.FC<CourseModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    instructor: "",
-    duration: "",
+    teacher: "",
+    duration_hours: "",
     image: "",
   });
 
-  // تحديث الحقول عند فتح النافذة (سواء للتعديل أو الإضافة)
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
     } else {
-      setFormData({ title: "", instructor: "", duration: "", image: "" });
+      setFormData({ title: "", teacher: "", duration_hours: "", image: "" });
     }
   }, [initialData, isOpen]);
 
+  useEffect(() => {
+    const loadInstructors = async () => {
+      if (!isOpen) return;
+
+      setIsLoading(true);
+      try {
+        const teachers = await fetchTeachers();
+        setInstructors(teachers);
+      } catch (error) {
+        console.error("Error loading instructors:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInstructors();
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -74,14 +105,26 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             <label className="block text-sm font-medium text-slate-700 mb-1">
               Instructor Name
             </label>
-            <input
-              type="text"
-              name="instructor"
-              value={formData.instructor}
+            <select
+              name="teacher"
+              value={formData.teacher}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-            />
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+            >
+              <option value="" disabled>
+                {isLoading ? "Loading instructors..." : "Select an instructor"}
+              </option>
+              {instructors.map((inst, index) => {
+                // نأخذ الـ ID سواء كان اسمه _id أو id
+                const teacherId = inst._id || inst.id;
+                return (
+                  <option key={teacherId || index} value={teacherId}>
+                    {inst.first_name} {inst.last_name}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <div>
@@ -90,8 +133,8 @@ export const CourseModal: React.FC<CourseModalProps> = ({
             </label>
             <input
               type="text"
-              name="duration"
-              value={formData.duration}
+              name="duration_hours"
+              value={formData.duration_hours}
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
