@@ -5,9 +5,12 @@ export class EnrollmentController {
   static async create(req: Request, res: Response) {
     try {
       const studentId = (req as any).user.id;
-      const { course_id } = req.body;
+      const { course_id, student_id } = req.body;
+      
+      console.log(student_id);
+      console.log(course_id);
       const enrollment = await EnrollmentService.requestEnrollment(
-        studentId,
+        student_id,
         course_id,
       );
       return res.status(201).json({ success: true, data: enrollment });
@@ -48,31 +51,37 @@ export class EnrollmentController {
 
       if (currentUser.role === "student") {
         targetStudentId = currentUser.id;
-      } 
-      else if ((currentUser.role === "admin" || currentUser.role === "teacher") && !targetStudentId) {
-        return res.status(400).json({ 
-          success: false, 
-          message:"The required student identifier (studentId) must be specified."
+      } else if (
+        (currentUser.role === "admin" || currentUser.role === "teacher") &&
+        !targetStudentId
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The required student identifier (studentId) must be specified.",
         });
       }
-      const enrollments = await EnrollmentService.getStudentEnrollments(targetStudentId);
-      
-      return res.status(200).json({ 
-        success: true, 
-        count: enrollments.length, 
-        data: enrollments 
+      const enrollments =
+        await EnrollmentService.getStudentEnrollments(targetStudentId);
+
+      return res.status(200).json({
+        success: true,
+        count: enrollments.length,
+        data: enrollments,
       });
     } catch (error: any) {
       return res.status(500).json({ success: false, message: error.message });
     }
   }
   static async getCourseStudents(req: Request, res: Response) {
-  try {
-    const { courseId } = (req as any).params;
-    const students = await EnrollmentService.getStudentsByCourse(courseId);
-    return res.status(200).json({ success: true, count: students.length, data: students });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message });
+    try {
+      const { courseId } = (req as any).params;
+      const students = await EnrollmentService.getStudentsByCourse(courseId);
+      return res
+        .status(200)
+        .json({ success: true, count: students.length, data: students });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
   }
-}
 }

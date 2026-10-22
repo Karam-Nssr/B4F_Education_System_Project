@@ -1,10 +1,13 @@
 import type { Request, Response } from "express";
 import { SessionService } from "./sessionService.js";
 export class SessionController {
-   static async addSession(req: Request, res: Response) {
+  static async addSession(req: Request, res: Response) {
     try {
       const { courseId } = req.params;
-      const session = await SessionService.createSession({ ...req.body, course: courseId });
+      const session = await SessionService.createSession({
+        ...req.body,
+        course: courseId,
+      });
       return res.status(201).json({ success: true, data: session });
     } catch (error: any) {
       return res.status(400).json({ success: false, message: error.message });
