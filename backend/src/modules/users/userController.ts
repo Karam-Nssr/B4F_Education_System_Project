@@ -51,13 +51,14 @@ export class UserController {
   static async getUserProfile(req: Request, res: Response) {
     try {
       const currentUser = (req as any).user;
+      console.log(currentUser)
       let targetUserId = (req as any).params.id;
 
-      if (!targetUserId || req.path.includes("/me")) {
-        targetUserId = currentUser.id;
+      if (!targetUserId || req.path.includes("/profile")) {
+        targetUserId = currentUser.userId;
       }
 
-      if (currentUser.role !== "admin" && targetUserId !== currentUser.id) {
+      if (currentUser.role !== "admin" && targetUserId !== currentUser.userId) {
         return res
           .status(403)
           .json({ success: false, message: "Access denied" });
