@@ -106,7 +106,6 @@ export default function AdminDashboard() {
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        {/* Page Header */}
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             Admin Dashboard
@@ -122,7 +121,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Add Teacher Section */}
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-xl font-bold text-slate-800">
             Add New Teacher
@@ -170,7 +168,6 @@ export default function AdminDashboard() {
           </form>
         </section>
 
-        {/* Users Table */}
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-200 bg-slate-50/50">
             <h2 className="text-xl font-bold text-slate-800">System Users</h2>
@@ -225,7 +222,6 @@ export default function AdminDashboard() {
           )}
         </section>
 
-        {/* Enrollments Table */}
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-200 bg-slate-50/50">
             <h2 className="text-xl font-bold text-slate-800">
